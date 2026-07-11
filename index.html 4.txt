@@ -1,0 +1,2237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>AimLock Head · HyperVision</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --primary: #ff0000;
+      --primary-dark: #cc0000;
+      --primary-glow: rgba(255, 0, 0, 0.6);
+      --secondary: #1a1a1a;
+      --accent-cyan: #ff3333;
+      --accent-purple: #ff4444;
+      --accent-green: #00cc66;
+      --dark-bg: #000000;
+      --glass-bg: rgba(0, 0, 0, 0.85);
+      --glass-border: rgba(255, 0, 0, 0.4);
+      --text-main: #ffffff;
+      --text-dim: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.4);
+      --card-radius: 25px 0 25px 0;
+      --transition-fast: 0.2s ease;
+      --transition-normal: 0.3s ease;
+    }
+
+    body.theme-red {
+      --primary: #ff0000;
+      --primary-dark: #cc0000;
+      --primary-glow: rgba(255, 0, 0, 0.6);
+      --accent-cyan: #ff3333;
+      --accent-purple: #ff4444;
+      --glass-border: rgba(255, 0, 0, 0.5);
+    }
+    body.theme-cyan {
+      --primary: #00f0ff;
+      --primary-dark: #00b3cc;
+      --primary-glow: rgba(0, 240, 255, 0.6);
+      --accent-cyan: #00ffff;
+      --accent-purple: #0ff0ff;
+      --glass-border: rgba(0, 240, 255, 0.4);
+    }
+    body.theme-purple {
+      --primary: #c084fc;
+      --primary-dark: #a855f7;
+      --primary-glow: rgba(192, 132, 252, 0.6);
+      --accent-cyan: #d8b4fe;
+      --accent-purple: #c084fc;
+      --glass-border: rgba(192, 132, 252, 0.4);
+    }
+    body.theme-dark {
+      --primary: #cccccc;
+      --primary-dark: #999999;
+      --primary-glow: rgba(200,200,200,0.4);
+      --accent-cyan: #dddddd;
+      --accent-purple: #bbbbbb;
+      --glass-border: rgba(200,200,200,0.3);
+    }
+
+    html {
+      height: 100%;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #000;
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      -webkit-overflow-scrolling: touch;
+      transition: background 0.2s ease;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://sf-static.upanhlaylink.com/img/image_20260118ef43d2af02fb7b647db26ffa7e2099e7.jpg') no-repeat center center fixed;
+      background-size: cover;
+      opacity: 0.35;
+      z-index: -2;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(15px);
+      z-index: -1;
+    }
+
+    body::-webkit-scrollbar {
+      width: 4px;
+    }
+    body::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    body::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 4px;
+    }
+
+    .aurora-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .aurora-blob {
+      position: absolute;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.15;
+      animation: auroraFloat 25s infinite ease-in-out;
+    }
+    .blob-1 {
+      background: radial-gradient(circle, var(--primary), transparent);
+      top: -30%;
+      left: -20%;
+      animation-delay: 0s;
+    }
+    .blob-2 {
+      background: radial-gradient(circle, #ff4444, transparent);
+      bottom: -30%;
+      right: -20%;
+      width: 80vw;
+      height: 80vw;
+      animation-delay: -8s;
+    }
+    .blob-3 {
+      background: radial-gradient(circle, #660000, transparent);
+      top: 40%;
+      left: 50%;
+      width: 90vw;
+      height: 90vw;
+      animation-delay: -15s;
+    }
+    @keyframes auroraFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(5%, 5%) scale(1.1); }
+      66% { transform: translate(-5%, -3%) scale(0.95); }
+    }
+
+    #particles-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 500px;
+      margin: 0 auto;
+      min-height: 100%;
+      padding: 0 12px 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--card-radius);
+      padding: 18px 16px;
+      transition: var(--transition-normal);
+      position: relative;
+      overflow: hidden;
+    }
+    .glass-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary), var(--accent-cyan), transparent);
+      opacity: 0.8;
+    }
+
+    .header {
+      text-align: center;
+      padding: 12px 16px;
+      margin-top: 0;
+    }
+
+    .app-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .app-sub {
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .app-main {
+      font-size: 26px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--primary), var(--accent-cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 1px;
+      text-shadow: 0 0 30px rgba(255,0,0,0.3);
+    }
+    .app-game {
+      font-size: 10px;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .beauty-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.96);
+      backdrop-filter: blur(20px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    .beauty-modal.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .beauty-modal-card {
+      background: linear-gradient(135deg, rgba(10,10,10,0.98), rgba(30,0,0,0.98));
+      border: 1px solid var(--primary);
+      border-radius: 32px;
+      width: 320px;
+      max-width: 85%;
+      padding: 28px 24px;
+      text-align: center;
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+      box-shadow: 0 0 60px rgba(255,0,0,0.3);
+    }
+    .beauty-modal.active .beauty-modal-card {
+      transform: scale(1);
+    }
+    .beauty-modal-icon {
+      width: 70px;
+      height: 70px;
+      background: rgba(255,0,0,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    .beauty-modal-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #fff, var(--primary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .beauty-modal-message {
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+    }
+    .beauty-modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .beauty-btn {
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      flex: 1;
+    }
+    .beauty-btn-cancel {
+      background: rgba(255,255,255,0.1);
+      color: var(--text-dim);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .beauty-btn-danger {
+      background: linear-gradient(135deg, #ff0000, #990000);
+      color: white;
+    }
+    .beauty-btn-primary {
+      background: linear-gradient(135deg, var(--primary), #ff4444);
+      color: white;
+    }
+    .beauty-btn-warning {
+      background: linear-gradient(135deg, #ff6600, #cc4400);
+      color: white;
+    }
+
+    .toast-notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: linear-gradient(135deg, #000000 0%, #1a0000 100%);
+      border: 1px solid var(--primary);
+      border-radius: 12px;
+      padding: 12px 20px;
+      min-width: 280px;
+      max-width: 90%;
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+      backdrop-filter: blur(20px);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .toast-notification.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+    .toast-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      animation: iconPop 0.4s ease;
+    }
+    .toast-icon.success { background: rgba(0, 204, 102, 0.15); color: #00cc66; }
+    .toast-icon.error { background: rgba(255, 0, 0, 0.2); color: #ff0000; }
+    .toast-icon.info { background: rgba(255, 51, 51, 0.15); color: #ff3333; }
+    .toast-content { flex: 1; }
+    .toast-title { font-size: 12px; font-weight: 800; letter-spacing: 1px; }
+    .toast-message { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), #ff4444);
+      width: 100%;
+      border-radius: 0 0 12px 12px;
+      animation: toastProgress 2.5s linear forwards;
+    }
+    @keyframes toastProgress {
+      0% { width: 100%; }
+      100% { width: 0%; }
+    }
+    @keyframes iconPop {
+      0% { transform: scale(0.5); opacity: 0; }
+      80% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .announce {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, rgba(255,0,0,0.15), rgba(0,0,0,0.5));
+      border-color: var(--primary);
+      animation: pulseGlow 2s infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 5px var(--primary-glow); border-color: rgba(255,0,0,0.4); }
+      50% { box-shadow: 0 0 20px var(--primary-glow); border-color: var(--primary); }
+    }
+    .announce-content { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .announce-title { font-weight: 700; font-size: 13px; }
+    .announce-tags { display: flex; gap: 8px; }
+    .tag {
+      background: rgba(255,0,0,0.2);
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+    }
+    .announce-close {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+    .announce-close:hover { color: var(--primary); transform: scale(1.1); }
+    .hidden { display: none !important; }
+
+    .tab-content { display: none; animation: fadeIn 0.4s ease; }
+    .active-tab { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .profile-card {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .profile-avatar {
+      position: relative;
+      width: 70px;
+      height: 70px;
+    }
+    .profile-avatar img {
+      width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+    .status-dot {
+      position: absolute; bottom: 3px; right: 3px; width: 14px; height: 14px;
+      background: var(--accent-green); border-radius: 50%; border: 2px solid var(--dark-bg);
+      animation: statusBlink 1.5s infinite;
+    }
+    @keyframes statusBlink { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+    .profile-info h4 { font-size: 20px; font-weight: 800; }
+    .profile-info p { font-size: 12px; color: var(--text-dim); }
+
+    .info-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .info-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .info-value {
+      font-weight: 700;
+      font-family: monospace;
+      font-size: 13px;
+      background: rgba(0,0,0,0.5);
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+    .premium-value {
+      color: var(--accent-green);
+      text-shadow: 0 0 5px rgba(0,255,157,0.3);
+    }
+    .key-value {
+      color: var(--accent-cyan);
+      letter-spacing: 1px;
+    }
+    .badge-active {
+      background: rgba(0,255,157,0.15);
+      color: #00ff9d;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-warning {
+      background: rgba(255,102,0,0.15);
+      color: #ff6600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .admin-links { display: flex; gap: 12px; margin-top: 10px; }
+    .admin-links a {
+      background: rgba(255,0,0,0.1);
+      padding: 8px 14px;
+      border-radius: 30px;
+      font-size: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+      transition: var(--transition-fast);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid transparent;
+    }
+    .admin-links a:hover { background: var(--primary); border-color: #fff; transform: translateY(-2px); box-shadow: 0 0 15px var(--primary-glow); }
+
+    .btn-logout {
+      background: rgba(255,0,0,0.15);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 12px 20px;
+      border-radius: 30px;
+      width: 100%;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .btn-logout:hover { background: var(--primary); color: white; box-shadow: 0 0 20px var(--primary-glow); }
+
+    .btn-revoke {
+      background: rgba(255,68,68,0.15);
+      border: 1px solid #ff4444;
+      color: #ff4444;
+      padding: 12px 20px;
+      border-radius: 30px;
+      width: 100%;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .btn-revoke:hover { background: #ff4444; color: white; box-shadow: 0 0 20px rgba(255,68,68,0.5); }
+
+    .btn-mega-start {
+      background: linear-gradient(135deg, #ff0000, #990000);
+      border: none;
+      width: 100%;
+      padding: 16px;
+      border-radius: 50px;
+      color: white;
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition-normal);
+      margin-top: 20px;
+    }
+    .btn-mega-start:hover { transform: scale(1.02); box-shadow: 0 0 35px var(--primary-glow); }
+    .btn-glow {
+      position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: btnShine 3s infinite;
+    }
+    @keyframes btnShine { 0%{left:-100%;} 20%,100%{left:100%;} }
+
+    .section-title { font-size: 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--text-dim); letter-spacing: 1px; }
+    .icon-primary { color: var(--primary); }
+    
+    .functions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .function-item {
+      background: rgba(10, 10, 20, 0.7);
+      border-radius: 20px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      border: 1px solid rgba(255, 42, 42, 0.3);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .function-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,42,42,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    .function-item:hover::before { left: 100%; }
+    .function-item:hover { 
+      border-color: var(--primary); 
+      transform: translateY(-3px); 
+      background: rgba(255, 42, 42, 0.12);
+      box-shadow: 0 8px 25px rgba(255, 0, 0, 0.25);
+    }
+    .function-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .function-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, rgba(255, 42, 42, 0.25), rgba(0, 0, 0, 0.4));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--primary);
+      transition: all 0.3s;
+    }
+    .function-item:hover .function-icon {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255,0,0,0.5);
+    }
+    .function-text-wrap {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .function-text {
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #fff, #ff6666);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .desc-text {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 56px;
+      height: 28px;
+      flex-shrink: 0;
+      align-self: flex-end;
+    }
+    .toggle-input {
+      display: none;
+    }
+    .toggle-label {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 34px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .toggle-slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+    .toggle-input:checked + .toggle-label {
+      background: linear-gradient(135deg, #ff2a2a, #cc0000);
+      border-color: #ff2a2a;
+      box-shadow: 0 0 14px rgba(255, 42, 42, 0.6);
+    }
+    .toggle-input:checked + .toggle-label .toggle-slider {
+      transform: translateX(28px);
+      background: white;
+      box-shadow: 0 0 6px rgba(255,255,255,0.8);
+    }
+
+    .device-radio-group { display: flex; gap: 15px; justify-content: center; }
+    .device-radio { cursor: pointer; }
+    .device-radio input { display: none; }
+    .device-box {
+      background: rgba(255,255,255,0.05);
+      padding: 10px 20px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .device-radio input:checked + .device-box {
+      background: linear-gradient(135deg, #ff0000, #990000);
+      border-color: #fff;
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .sensi-item { margin-bottom: 20px; }
+    .slider-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .sensi-label { font-size: 12px; font-weight: 600; }
+    .slider-val-display { font-size: 12px; color: var(--accent-cyan); font-weight: 700; }
+    .modern-slider {
+      width: 100%; height: 4px;
+      -webkit-appearance: none;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      outline: none;
+    }
+    .modern-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      background: var(--primary);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--primary-glow);
+      border: 2px solid #fff;
+    }
+
+    .console-mobile { margin-top: 8px; }
+    .cm-grid { display: flex; flex-direction: column; gap: 12px; }
+    .glass-subpanel {
+      background: rgba(0,0,0,0.5);
+      border-radius: 16px;
+      padding: 12px;
+      border: 1px solid var(--glass-border);
+    }
+    .monitor-subtitle { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 1px; }
+    .cm-charts { display: flex; flex-direction: column; gap: 15px; }
+    .cm-chart-box canvas { width: 100%; height: auto; background: rgba(0,0,0,0.3); border-radius: 8px; }
+    .cm-chart-header { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 6px; }
+    .text-cyan { color: var(--accent-cyan); }
+    .text-purple { color: var(--accent-purple); }
+    .cm-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .cm-btn {
+      background: rgba(255,0,0,0.15);
+      border: 1px solid var(--accent-cyan);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+    .cm-btn:hover { background: var(--accent-cyan); color: black; box-shadow: 0 0 10px var(--accent-cyan); }
+    .monitor-pill { background: rgba(0,0,0,0.4); padding: 6px 12px; border-radius: 20px; font-size: 11px; }
+    .cm-console { height: 100px; overflow-y: auto; font-family: monospace; font-size: 10px; color: var(--accent-cyan); padding: 8px; }
+    .console-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 10px; color: var(--text-muted); }
+    .console-dot { width: 8px; height: 8px; background: var(--accent-green); border-radius: 50%; animation: blink 1s infinite; }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+    .booster-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.5);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .booster-left { display: flex; align-items: center; gap: 12px; }
+    .booster-icon { width: 45px; height: 45px; border-radius: 12px; object-fit: cover; }
+    .booster-btn {
+      background: linear-gradient(135deg, #ff0000, #990000);
+      border: none; padding: 8px 20px; border-radius: 30px;
+      color: white; font-weight: 700; cursor: pointer; transition: var(--transition-fast);
+    }
+    .booster-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--primary-glow); }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      max-width: 500px; margin: 0 auto;
+      display: flex; justify-content: space-around;
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--primary);
+      padding: 8px 12px 20px;
+      z-index: 100;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      color: var(--text-dim); cursor: pointer; transition: var(--transition-fast);
+      font-size: 12px;
+    }
+    .nav-item i { font-size: 22px; }
+    .nav-item.active-nav {
+      color: var(--primary);
+      text-shadow: 0 0 10px var(--primary-glow);
+      transform: translateY(-3px);
+    }
+
+    .fullscreen-modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.96);
+      backdrop-filter: blur(15px);
+      z-index: 2000;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .fullscreen-modal.hidden { display: none; }
+    .modal-ring-container {
+      position: relative; width: 100px; height: 100px; margin: 0 auto 20px;
+    }
+    .modal-ring {
+      position: absolute; border-radius: 50%; animation: spin 2s linear infinite;
+    }
+    .modal-ring.outer { width: 100%; height: 100%; border: 2px solid transparent; border-top-color: var(--primary); border-right-color: #ff4444; }
+    .modal-ring.inner { width: 70%; height: 70%; top: 15%; left: 15%; border: 2px solid transparent; border-bottom-color: var(--primary); border-left-color: #ff4444; animation-direction: reverse; }
+    @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+    .modal-center-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; color: var(--primary); }
+    .progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 4px; margin: 20px 0 10px; overflow: hidden; }
+    .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #ff0000, #ff4444); transition: width 0.05s linear; }
+
+    .seq-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 10px; }
+    .seq-bar-bg { flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+    .seq-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #ff0000, #ff4444); transition: width 0.05s linear; }
+
+    .neon-mouse-trail {
+      position: absolute; width: 8px; height: 8px;
+      background: var(--primary); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      filter: blur(2px);
+      animation: trailFade 0.6s ease-out forwards;
+    }
+    @keyframes trailFade { 0%{opacity:0.9;transform:scale(1);} 100%{opacity:0;transform:scale(2.5);} }
+
+    #virtual-crosshair-overlay { transition: transform 0.05s linear; }
+    #xh-draw { transition: transform 0.05s linear, border-color 0.1s; }
+
+    .footer { text-align: center; font-size: 10px; color: var(--text-muted); margin-top: 16px; }
+    .center { justify-content: center; }
+
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.98);
+      backdrop-filter: blur(20px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+    }
+
+    .login-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--primary);
+      border-radius: var(--card-radius);
+      padding: 40px 30px;
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 60px rgba(255,0,0,0.3);
+      animation: slideUp 0.5s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .login-icon {
+      font-size: 75px;
+      color: var(--primary);
+      margin-bottom: 20px;
+      text-shadow: 0 0 30px var(--primary-glow);
+      animation: iconPulse 2s infinite;
+    }
+    @keyframes iconPulse {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .login-card h2 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff, #ff0000, #ff4444);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .login-input {
+      width: 100%;
+      padding: 14px 20px;
+      margin: 20px 0;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--primary);
+      border-radius: 50px;
+      color: white;
+      font-size: 14px;
+      text-align: center;
+      font-family: monospace;
+      letter-spacing: 1px;
+      transition: 0.2s;
+    }
+    .login-input:focus {
+      outline: none;
+      border-color: #ff4444;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+    .login-btn {
+      background: linear-gradient(135deg, #ff0000, #990000);
+      border: none;
+      padding: 14px;
+      width: 100%;
+      border-radius: 50px;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .login-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 25px var(--primary-glow);
+    }
+    .login-error {
+      color: var(--primary);
+      font-size: 12px;
+      margin-top: 15px;
+    }
+    .login-note {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 20px;
+    }
+
+    .theme-picker {
+      position: fixed;
+      bottom: 80px;
+      right: 12px;
+      z-index: 1000;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 40px;
+      padding: 6px 12px;
+      display: flex;
+      gap: 12px;
+      border: 1px solid var(--glass-border);
+    }
+    .theme-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+    .theme-btn.active-theme {
+      transform: scale(1.2);
+      border-color: white;
+      box-shadow: 0 0 10px white;
+    }
+    .theme-red { background: #ff0000; }
+    .theme-cyan { background: #00f0ff; }
+    .theme-purple { background: #c084fc; }
+    .theme-dark { background: #888888; }
+
+    @media (max-width: 480px) {
+      .functions-grid { grid-template-columns: 1fr; }
+      .glass-panel { padding: 14px; }
+      .app-main { font-size: 20px; }
+      .theme-picker { bottom: 70px; right: 8px; padding: 4px 8px; gap: 8px; }
+      .theme-btn { width: 28px; height: 28px; }
+      .container { padding: 0 12px 80px; }
+      .header { padding: 8px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="aurora-bg">
+  <div class="aurora-blob blob-1"></div>
+  <div class="aurora-blob blob-2"></div>
+  <div class="aurora-blob blob-3"></div>
+</div>
+<canvas id="particles-canvas"></canvas>
+
+<div id="loginOverlay" class="login-overlay">
+  <div class="login-card">
+    <div class="login-icon"><i class="fas fa-key"></i></div>
+    <h2>AIMLOCK HEAD</h2>
+    <p style="font-size: 12px; color: #aaa;">Nhập key để kích hoạt</p>
+    <input type="text" id="licenseKey" class="login-input" placeholder="XXX-XXXX-XXXX-XXXX" autocomplete="off">
+    <button class="login-btn" id="activateBtn"><i class="fas fa-rocket"></i> KÍCH HOẠT</button>
+    <div id="loginError" class="login-error"></div>
+    <div class="login-note"><i class="fas fa-shield-alt"></i> Hệ Thống Bảo Mật Nhận Diện Thời Gian Và HWID Thiết Bị</div>
+  </div>
+</div>
+
+<div class="main-app" id="mainApp" style="display: none;">
+  <div class="container" id="main-panel">
+    <header class="header glass-panel">
+      <div class="app-title">
+        <span class="app-sub">OPTIMIZER BOOSTER</span>
+        <span class="app-main">AimLock Head</span>
+        <span class="app-game">FREE FIRE EXCLUSIVE</span>
+      </div>
+    </header>
+
+    <div id="announce-bar" class="announce hidden glass-panel">
+      <div class="announce-content">
+        <i class="fas fa-bolt"></i>
+        <span class="announce-title">HỆ THỐNG ĐÃ SẴN SÀNG</span>
+        <div class="announce-tags"><span class="tag">AI Aim</span><span class="tag">120 FPS</span></div>
+      </div>
+      <button class="announce-close" id="announce-close"><i class="fas fa-times"></i></button>
+    </div>
+
+    <main class="main-content">
+      <div id="tab-info" class="tab-content active-tab">
+        <div class="glass-panel profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <img src="https://i.ibb.co/GQ4ssyyp/4-C00100-B-B14-B-43-BF-B1-CD-A0-D0-F408-D7-CA.png" alt="Admin" onerror="this.src='https://i.ibb.co/GQ4ssyyp/4-C00100-B-B14-B-43-BF-B1-CD-A0-D0-F408-D7-CA.png'">
+              <div class="status-dot"></div>
+            </div>
+            <div class="profile-info">
+              <h4>Nguyen Tien Thanh</h4>
+              <p><i class="fa-solid fa-circle-user"></i> Mua File,Key App Ib Thành Nha</p>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-row">
+              <span class="info-label"><i class="fas fa-microchip"></i> HWID (Mã máy)</span>
+              <span class="info-value" id="hwid-display">637FB538...</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label"><i class="fas fa-tag"></i> KEY đang dùng</span>
+              <span class="info-value key-value" id="current-key-display-pro">6-5DF7</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label"><i class="fas fa-hourglass-half"></i> Thời gian còn lại</span>
+              <span class="info-value premium-value" id="time-left-display">Vĩnh viễn</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label"><i class="fas fa-calendar-alt"></i> Hạn sử dụng</span>
+              <span class="info-value" id="expiry-display-pro">Vĩnh viễn</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label"><i class="fas fa-gem"></i> Loại key / Gói</span>
+              <span class="info-value premium-value" id="package-type-display">Vĩnh Viễn</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label"><i class="fas fa-check-circle"></i> Trạng thái</span>
+              <span class="badge-active" id="status-badge-display"><i class="fas fa-check"></i> ACTIVE</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label"><i class="fas fa-desktop"></i> Số máy đang dùng</span>
+              <span class="info-value" id="sessions-count">1/1</span>
+            </div>
+          </div>
+
+          <div class="admin-links">
+            <a href="https://www.facebook.com/share/18ULWMHnLz/?mibextid=wwXIfr" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
+            <a href="https://zalo.me/0337145332" target="_blank"><i class="fas fa-comment-dots"></i> Zalo</a>
+          </div>
+
+          <button class="btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> ĐĂNG XUẤT</button>
+          <button class="btn-revoke" id="revokeKeyBtn"><i class="fas fa-skull-crossbones"></i> KHÓA KEY VĨNH VIỄN</button>
+          <button class="btn-logout" style="margin-top: 10px; background: rgba(255,255,255,0.08); border-color: #ff6600; color: #ff6600;" id="newKeyBtn"><i class="fas fa-plus-circle"></i> KÍCH HOẠT KEY MỚI</button>
+        </div>
+
+        <button id="btn-start-turbo" class="btn-mega-start"><i class="fas fa-rocket"></i> START<div class="btn-glow"></div></button>
+        <div class="footer">© NGUYEN TIEN THANH</div>
+      </div>
+
+      <div id="tab-aimlock" class="tab-content">
+        <section class="section glass-panel">
+          <h2 class="section-title"><i class="fas fa-crosshairs icon-primary"></i> MODULE TẤN CÔNG</h2>
+          <div class="functions-grid" id="functions-grid"></div>
+        </section>
+      </div>
+
+      <div id="tab-optimize" class="tab-content">
+        <section class="section glass-panel device-selector-container">
+          <h2 class="section-title"><i class="fas fa-mobile-alt icon-primary"></i> THIẾT BỊ :</h2>
+          <div class="device-radio-group">
+            <label class="device-radio"><input type="radio" name="dev-type" class="dev-radio-input" value="iPhone" checked><div class="device-box"><i class="fab fa-apple"></i> iPhone</div></label>
+            <label class="device-radio"><input type="radio" name="dev-type" class="dev-radio-input" value="Android"><div class="device-box"><i class="fab fa-android"></i> Android</div></label>
+          </div>
+        </section>
+
+        <section class="section glass-panel">
+          <div class="sensi-item"><div class="sensi-content" style="flex-direction:column"><div class="slider-header"><div style="display:flex;align-items:center;gap:8px"><div class="sensi-icon"><i class="fas fa-sliders-h"></i></div><span class="sensi-label">TĂNG TỐC AIMLOCK</span></div><div class="slider-val-display" id="engine-val-display">Performance</div></div><div class="slider-container"><input type="range" id="engine-slider" class="modern-slider" min="1" max="3" step="1" value="1"></div></div></div>
+          <div class="sensi-item"><div class="sensi-content" style="flex-direction:column"><div class="slider-header"><div style="display:flex;align-items:center;gap:8px"><div class="sensi-icon"><i class="fas fa-compress-arrows-alt"></i></div><span class="sensi-label">DPI PRO</span></div><div class="slider-val-display" id="dpi-val-display">1.0x</div></div><div class="slider-container"><input type="range" id="dpi-slider" class="modern-slider" min="1" max="5" step="1" value="1"></div></div></div>
+        </section>
+
+        <section class="section glass-panel" id="extra-section">
+          <h2 class="section-title"><i class="fas fa-microchip icon-primary"></i> SYSTEM</h2>
+          <div class="console-mobile">
+            <div class="cm-grid">
+              <div class="cm-panel cm-panel-charts glass-subpanel">
+                <h4 class="monitor-subtitle">Realtime Telemetry</h4>
+                <div class="cm-charts">
+                  <div class="cm-chart-box">
+                    <div class="cm-chart-header">
+                      <div class="cm-label">CPU Load <span id="cm-cpu-text" class="text-cyan">--%</span></div>
+                    </div>
+                    <canvas id="cm-cpu-canvas" width="900" height="100"></canvas>
+                  </div>
+                  <div class="cm-chart-box">
+                    <div class="cm-chart-header">
+                      <div class="cm-label">RAM Usage <span id="cm-ram-text" class="text-purple">--</span></div>
+                    </div>
+                    <canvas id="cm-ram-canvas" width="900" height="100"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="cm-topbar glass-subpanel">
+                <div class="cm-controls">
+                  <button id="cm-btn-ram" class="cm-btn"><i class="fas fa-trash-alt"></i> Dọn RAM</button>
+                  <button id="cm-btn-cpu" class="cm-btn"><i class="fas fa-microchip"></i> Dọn CPU</button>
+                  <button id="cm-btn-fps" class="cm-btn"><i class="fas fa-chart-line"></i> Lock FPS: OFF</button>
+                  <div class="monitor-pill"><span>FPS:</span><b id="cm-fps-now">--</b><span> | </span><b id="cm-mode-now">Unlocked</b></div>
+                </div>
+              </div>
+              <div class="cm-panel cm-panel-console glass-subpanel">
+                <div class="console-header"><span class="console-dot"></span><span>TERMINAL</span></div>
+                <div id="cm-console" class="cm-console"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section glass-panel" id="launcher-section">
+          <h2 class="section-title center"><i class="fas fa-play icon-primary"></i> GAME LAUNCHER</h2>
+          <div class="booster-card"><div class="booster-left"><img src="https://i.ibb.co/4ZVWVqm8/IMG-1663.jpg" class="booster-icon"><span>FREE FIRE</span></div><button class="booster-btn" onclick="launchGameWithAnim('ff')"><i class="fas fa-bolt"></i> PLAY</button></div>
+          <div class="booster-card"><div class="booster-left"><img src="https://i.ibb.co/chQpJKC7/IMG-1662.jpg" class="booster-icon"><span>FREE FIRE MAX</span></div><button class="booster-btn" onclick="launchGameWithAnim('ffmax')"><i class="fas fa-bolt"></i> PLAY</button></div>
+        </section>
+      </div>
+
+      <div id="tab-crosshair" class="tab-content">
+        <section class="section glass-panel">
+          <h2 class="section-title"><i class="fas fa-bullseye icon-primary"></i> VIRTUAL CROSSHAIR</h2>
+          <div class="function-item" style="margin-bottom:20px; flex-direction:row; align-items:center;">
+            <div class="function-content" style="flex:1">
+              <div class="function-icon"><i class="fas fa-eye"></i></div>
+              <div class="function-text-wrap">
+                <span class="function-text">HIỂN THỊ TÂM ẢO</span>
+                <span class="desc-text">Overlay tâm ngắm lên màn hình</span>
+              </div>
+            </div>
+            <div class="toggle-switch">
+              <input type="checkbox" id="crosshair-toggle" class="toggle-input">
+              <label for="crosshair-toggle" class="toggle-label"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+          <div class="sensi-item">
+            <div class="sensi-content" style="flex-direction:column">
+              <div class="slider-header">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="sensi-icon"><i class="fas fa-expand"></i></div>
+                  <span class="sensi-label">KÍCH CỠ TÂM</span>
+                </div>
+                <div class="slider-val-display" id="xh-size-val">1.0x</div>
+              </div>
+              <div class="slider-container"><input type="range" id="xh-size-slider" class="modern-slider" min="0.5" max="3" step="0.1" value="1"></div>
+            </div>
+          </div>
+          <div class="sensi-item">
+            <div class="sensi-content" style="flex-direction:column">
+              <div class="slider-header">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="sensi-icon"><i class="fas fa-arrows-alt-h"></i></div>
+                  <span class="sensi-label">VỊ TRÍ X (NGANG)</span>
+                </div>
+                <div class="slider-val-display" id="xh-x-val">0</div>
+              </div>
+              <div class="slider-container"><input type="range" id="xh-x-slider" class="modern-slider" min="-200" max="200" step="1" value="0"></div>
+            </div>
+          </div>
+          <div class="sensi-item">
+            <div class="sensi-content" style="flex-direction:column">
+              <div class="slider-header">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div class="sensi-icon"><i class="fas fa-arrows-alt-v"></i></div>
+                  <span class="sensi-label">VỊ TRÍ Y (DỌC)</span>
+                </div>
+                <div class="slider-val-display" id="xh-y-val">0</div>
+              </div>
+              <div class="slider-container"><input type="range" id="xh-y-slider" class="modern-slider" min="-200" max="200" step="1" value="0"></div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:25px;padding:0 10px">
+            <span class="sensi-label">MÀU SẮC CHỦ ĐẠO</span>
+            <input type="color" id="xh-color-picker" value="#ff0000" style="border:none;background:none;width:45px;height:45px;cursor:pointer">
+          </div>
+        </section>
+      </div>
+
+      <div id="virtual-crosshair-overlay" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:9999;display:none">
+        <div id="xh-draw" style="width:24px;height:24px;border:2.5px solid #ff0000;border-radius:50%;position:relative;box-shadow:0 0 10px rgba(255,0,0,0.5)">
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:5px;height:5px;background:#ff0000;border-radius:50%"></div>
+        </div>
+      </div>
+    </main>
+
+    <div class="bottom-nav">
+      <div class="nav-item active-nav" onclick="switchTab('tab-info', this)"><i class="fas fa-user-astronaut"></i><span>Profile</span></div>
+      <div class="nav-item" onclick="switchTab('tab-aimlock', this)"><i class="fas fa-crosshairs"></i><span>Aimlock</span></div>
+      <div class="nav-item" onclick="switchTab('tab-optimize', this)"><i class="fas fa-microchip"></i><span>System</span></div>
+      <div class="nav-item" onclick="switchTab('tab-crosshair', this)"><i class="fas fa-bullseye"></i><span>Crosshair</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="theme-picker" id="themePicker">
+  <div class="theme-btn theme-red" data-theme="red"></div>
+  <div class="theme-btn theme-cyan" data-theme="cyan"></div>
+  <div class="theme-btn theme-purple" data-theme="purple"></div>
+  <div class="theme-btn theme-dark" data-theme="dark"></div>
+</div>
+
+<div id="universal-modal" class="fullscreen-modal hidden"><div class="universal-content"><div class="modal-ring-container"><div class="modal-ring outer"></div><div class="modal-ring inner"></div><i class="fas fa-crosshairs modal-center-icon"></i></div><h3 id="um-title">ACTIVATING</h3><div class="progress-container"><div class="progress-bar" id="um-progress"></div></div><div class="progress-text" id="um-text">0%</div></div></div>
+<div id="launch-sequence-modal" class="fullscreen-modal hidden"><div class="launch-sequence-content"><h3 style="color:var(--primary);letter-spacing:2px;margin-bottom:20px">OPTIMIZING LAUNCH SEQUENCE</h3><div class="seq-row"><span>CPU PRIORITY</span><div class="seq-bar-bg"><div class="seq-bar-fill" id="seq-cpu"></div></div><span id="seq-cpu-txt">0%</span></div><div class="seq-row"><span>NETWORK ROUTING</span><div class="seq-bar-bg"><div class="seq-bar-fill" id="seq-net"></div></div><span id="seq-net-txt">0%</span></div><div class="seq-row"><span>RAM FLUSH</span><div class="seq-bar-bg"><div class="seq-bar-fill" id="seq-ram"></div></div><span id="seq-ram-txt">0%</span></div></div></div>
+
+<script>
+const FIREBASE_URL = "https://nguyenthanh-abf44-default-rtdb.firebaseio.com";
+
+let currentKey = null;
+let currentKeyData = null;
+let currentKeyId = null;
+let audioCtx = null;
+let clickSoundBuffer = null;
+let toggleSoundBuffer = null;
+let cpuData = [], ramData = [];
+let cpuCanvas, ramCanvas, cpuCtx, ramCtx;
+let isFPSLocked = false;
+let modalInterval = null, isAnimating = false;
+let expirationCheckInterval = null;
+let sessionCheckInterval = null;
+
+// ==================== UTILITY FUNCTIONS ====================
+
+function getTimeRemaining(expiresAt) {
+  if (!expiresAt) return { text: "Vĩnh viễn", expired: false, days: -1, hours: -1, minutes: -1 };
+  const now = new Date();
+  const expireDate = new Date(expiresAt);
+  if (expireDate <= now) return { text: "Đã hết hạn", expired: true, days: 0, hours: 0, minutes: 0 };
+  const diffMs = expireDate - now;
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diffMs % (86400000)) / (3600000));
+  const minutes = Math.floor((diffMs % 3600000) / (60000));
+  if (days > 0) return { text: `${days} ngày ${hours} giờ`, expired: false, days, hours, minutes };
+  if (hours > 0) return { text: `${hours} giờ ${minutes} phút`, expired: false, days, hours, minutes };
+  return { text: `${minutes} phút`, expired: false, days, hours, minutes };
+}
+
+function showToast(message, type = "info", title = "") {
+  const existingToast = document.querySelector('.toast-notification');
+  if(existingToast) existingToast.remove();
+  
+  const toast = document.createElement('div');
+  toast.className = 'toast-notification';
+  const titles = { success: "THÀNH CÔNG", error: "LỖI", info: "THÔNG BÁO" };
+  const icons = { success: "fa-check-circle", error: "fa-exclamation-triangle", info: "fa-bolt" };
+  
+  toast.innerHTML = `
+    <div class="toast-icon ${type}"><i class="fas ${icons[type]}"></i></div>
+    <div class="toast-content"><div class="toast-title">${title || titles[type]}</div><div class="toast-message">${message}</div></div>
+    <div class="toast-progress"></div>
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
+function showBeautyModal(title, message, onConfirm, confirmText = "XÁC NHẬN", cancelText = "HỦY", isWarning = false) {
+  let modal = document.querySelector('.beauty-modal');
+  if(modal) modal.remove();
+  modal = document.createElement('div');
+  modal.className = 'beauty-modal';
+  modal.innerHTML = `
+    <div class="beauty-modal-card">
+      <div class="beauty-modal-icon"><i class="fas ${isWarning ? 'fa-exclamation-triangle' : 'fa-question-circle'}"></i></div>
+      <div class="beauty-modal-title">${title}</div>
+      <div class="beauty-modal-message">${message}</div>
+      <div class="beauty-modal-actions">
+        <button class="beauty-btn beauty-btn-cancel" id="beauty-cancel">${cancelText}</button>
+        <button class="beauty-btn ${isWarning ? 'beauty-btn-warning' : 'beauty-btn-danger'}" id="beauty-confirm">${confirmText}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  setTimeout(() => modal.classList.add('active'), 10);
+  
+  const confirmBtn = modal.querySelector('#beauty-confirm');
+  const cancelBtn = modal.querySelector('#beauty-cancel');
+  const closeModal = () => {
+    modal.classList.remove('active');
+    setTimeout(() => modal.remove(), 300);
+  };
+  confirmBtn.onclick = () => { closeModal(); if(onConfirm) onConfirm(); };
+  cancelBtn.onclick = closeModal;
+  modal.onclick = (e) => { if(e.target === modal) closeModal(); };
+}
+
+async function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function createBeepSound(freq, duration) {
+    const sampleRate = audioCtx.sampleRate;
+    const samples = duration * sampleRate;
+    const buffer = audioCtx.createBuffer(1, samples, sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < samples; i++) {
+      const t = i / sampleRate;
+      data[i] = Math.sin(2 * Math.PI * freq * t) * Math.exp(-3 * t);
+    }
+    return buffer;
+  }
+  clickSoundBuffer = createBeepSound(880, 0.15);
+  toggleSoundBuffer = createBeepSound(440, 0.2);
+}
+
+function playSound(type = 'click') {
+  if (!audioCtx) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const buffer = type === 'click' ? clickSoundBuffer : toggleSoundBuffer;
+  if (!buffer) return;
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(audioCtx.destination);
+  source.start();
+}
+
+function getHWID() {
+  const navigatorInfo = `${navigator.userAgent}|${navigator.language}|${navigator.platform}|${screen.width}x${screen.height}|${screen.colorDepth}|${navigator.hardwareConcurrency || 4}`;
+  let hash = 0;
+  for (let i = 0; i < navigatorInfo.length; i++) {
+    hash = ((hash << 5) - hash) + navigatorInfo.charCodeAt(i);
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(16).toUpperCase();
+}
+
+async function fetchFirebase(path, method = 'GET', data = null) {
+  const url = `${FIREBASE_URL}${path}.json`;
+  const options = { method: method, headers: { 'Content-Type': 'application/json' } };
+  if (data) options.body = JSON.stringify(data);
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Firebase Error:', error);
+    return null;
+  }
+}
+
+function normalizeUsedDevices(usedDevices) {
+  if (!usedDevices) return [];
+  if (Array.isArray(usedDevices)) return [...usedDevices];
+  if (typeof usedDevices === 'object') return Object.values(usedDevices);
+  return [];
+}
+
+// ==================== CORE KEY VERIFICATION (FIXED) ====================
+
+async function verifyAndActivateKey(keyCode, isAutoLogin = false) {
+    const hwid = getHWID();
+    
+    // PREMIUM BYPASS KEY
+    if (keyCode.toUpperCase() === "PREMIUM-ADMIND9RDJ0") {
+        const mockData = {
+            key: "PREMIUM-ADMIND9RDJ0
+              ",
+            status: "không bao giờ ngừng active",
+            activatedAt: new Date().toISOString(),
+            lastActive: new Date().toISOString(),
+            maxSessions: 1,
+            activeSessions: [hwid],
+            expiresAt: null
+        };
+        return { success: true, data: mockData, keyId: "premium_bypass_id", message: "Đăng nhập Premium Vĩnh Viễn thành công!" };
+    }
+
+    const keysData = await fetchFirebase('/keys');
+    if (!keysData) return { success: false, message: "Lỗi kết nối Firebase!" };
+    
+    let keyData = null;
+    let keyId = null;
+    for (let id in keysData) { 
+        if (keysData[id].key === keyCode.toUpperCase()) { 
+            keyId = id;
+            keyData = { firebaseId: id, ...keysData[id] }; 
+            break; 
+        } 
+    }
+    
+    if (!keyData) return { success: false, message: "Key không tồn tại!" };
+    
+    // Kiểm tra key bị khóa vĩnh viễn (chỉ admin mới làm được)
+    if (keyData.disabled === true) {
+        return { success: false, message: "Key đã bị khóa vĩnh viễn! Liên hệ admin để biết thêm chi tiết." };
+    }
+    
+    // Kiểm tra hết hạn
+    if (keyData.expiresAt && new Date(keyData.expiresAt) < new Date()) {
+        return { success: false, message: "Key đã hết hạn!" };
+    }
+    
+    // --- LOGIC MỚI: Quản lý phiên đăng nhập (SESSION BASED) ---
+    const activeSessions = keyData.activeSessions || [];
+    const maxSessions = keyData.maxSessions || 1;
+    
+    // Trường hợp 1: Máy này đã đăng nhập trước đó
+    if (activeSessions.includes(hwid)) {
+        // Cập nhật thời gian hoạt động cuối
+        await fetchFirebase(`/keys/${keyId}`, 'PATCH', {
+            lastActive: new Date().toISOString()
+        });
+        return { success: true, data: keyData, keyId: keyId, message: "Đăng nhập thành công!" };
+    }
+    
+    // Trường hợp 2: Chưa đăng nhập, kiểm tra số lượng phiên
+    if (activeSessions.length >= maxSessions) {
+        return { 
+            success: false, 
+            message: `Key đang được sử dụng trên ${activeSessions.length}/${maxSessions} máy! Vui lòng đăng xuất trên máy kia trước để sử dụng tiếp.` 
+        };
+    }
+    
+    // Trường hợp 3: Còn slot, thêm máy mới
+    activeSessions.push(hwid);
+    const updateData = {
+        activeSessions: activeSessions,
+        status: activeSessions.length >= maxSessions ? 'used' : 'active',
+        activatedAt: keyData.activatedAt || new Date().toISOString(),
+        lastActive: new Date().toISOString()
+    };
+    
+    await fetchFirebase(`/keys/${keyId}`, 'PATCH', updateData);
+    keyData.activeSessions = activeSessions;
+    keyData.status = updateData.status;
+    
+    let message = `Kích hoạt thành công! (${activeSessions.length}/${maxSessions} máy)`;
+    return { success: true, data: keyData, keyId: keyId, message: message };
+}
+
+// ==================== SESSION MANAGEMENT ====================
+
+async function updateSessionInfo() {
+  if (!currentKeyId || !currentKeyData) return;
+  if (currentKeyId === "premium_bypass_id") return; // Bỏ qua đối với premium key bypass
+  
+  try {
+    const freshData = await fetchFirebase(`/keys/${currentKeyId}`);
+    if (freshData) {
+      const activeSessions = freshData.activeSessions || [];
+      const maxSessions = freshData.maxSessions || 1;
+      const sessionsCount = document.getElementById('sessions-count');
+      if (sessionsCount) {
+        sessionsCount.innerHTML = `${activeSessions.length}/${maxSessions}`;
+        if (activeSessions.length >= maxSessions && maxSessions > 1) {
+          sessionsCount.classList.add('badge-warning');
+          sessionsCount.classList.remove('premium-value');
+        } else {
+          sessionsCount.classList.remove('badge-warning');
+          sessionsCount.classList.add('premium-value');
+        }
+      }
+      
+      // Kiểm tra nếu session hiện tại bị xóa từ xa (đăng xuất từ máy khác)
+      const hwid = getHWID();
+      if (!activeSessions.includes(hwid) && freshData.disabled !== true) {
+        showToast("Phiên đăng nhập của bạn đã bị đóng từ xa! Vui lòng đăng nhập lại.", "error");
+        await forceLogout();
+      }
+    }
+  } catch (e) {
+    console.error("Lỗi cập nhật session:", e);
+  }
+}
+
+// ==================== LOGOUT (SOFT - KHÔNG HỦY KEY) ====================
+
+async function softLogout(showConfirm = true) {
+  const doLogout = async () => {
+    playSound('click');
+    const hwid = getHWID();
+    
+    // Xóa HWID này khỏi danh sách activeSessions trên server
+    if (currentKeyId && currentKeyData && currentKeyId !== "premium_bypass_id") {
+      const activeSessions = currentKeyData.activeSessions || [];
+      const newSessions = activeSessions.filter(id => id !== hwid);
+      
+      await fetchFirebase(`/keys/${currentKeyId}`, 'PATCH', {
+        activeSessions: newSessions,
+        lastLogout: new Date().toISOString()
+      });
+      
+      showToast("Đã đăng xuất! Bạn có thể đăng nhập lại trên máy khác bất cứ lúc nào.", "success");
+    } else if (currentKeyId === "premium_bypass_id") {
+      showToast("Đã đăng xuất Key Premium!", "success");
+    }
+    
+    // Xóa key khỏi localStorage
+    localStorage.removeItem("infinity_key");
+    currentKey = null;
+    currentKeyData = null;
+    currentKeyId = null;
+    
+    // Dừng các interval kiểm tra
+    if (expirationCheckInterval) clearInterval(expirationCheckInterval);
+    if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+    
+    // Hiển thị lại màn hình đăng nhập
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('mainApp').style.display = 'none';
+  };
+  
+  if (showConfirm) {
+    showBeautyModal(
+      "XÁC NHẬN ĐĂNG XUẤT", 
+      "Bạn có chắc muốn đăng xuất? Key sẽ KHÔNG bị vô hiệu hóa và bạn có thể đăng nhập lại sau trên bất kỳ máy nào.", 
+      doLogout,
+      "ĐĂNG XUẤT",
+      "HỦY",
+      false
+    );
+  } else {
+    await doLogout();
+  }
+}
+
+// ==================== REVOKE KEY (CHỈ ADMIN MỚI NÊN DÙNG) ====================
+
+async function revokeKeyPermanently() {
+  if (currentKeyId === "premium_bypass_id") {
+      showToast("Không thể khóa key hệ thống!", "error");
+      return;
+  }
+  showBeautyModal(
+    "CẢNH BÁO NGHIÊM TRỌNG", 
+    "⚠️ HÀNH ĐỘNG NÀY SẼ KHÓA VĨNH VIỄN KEY HIỆN TẠI! ⚠️\n\nKey sẽ không thể sử dụng lại trên bất kỳ máy nào. Chỉ sử dụng khi key vi phạm điều khoản.\n\nBạn có chắc chắn?",
+    async () => {
+      playSound('click');
+      
+      if (currentKeyId) {
+        await fetchFirebase(`/keys/${currentKeyId}`, 'PATCH', {
+          disabled: true,
+          disabledReason: "Admin khóa thủ công",
+          disabledAt: new Date().toISOString(),
+          revokedBy: getHWID()
+        });
+        showToast("Key đã bị khóa vĩnh viễn!", "error");
+      }
+      
+      // Xóa key khỏi localStorage
+      localStorage.removeItem("infinity_key");
+      currentKey = null;
+      currentKeyData = null;
+      currentKeyId = null;
+      
+      if (expirationCheckInterval) clearInterval(expirationCheckInterval);
+      if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+      
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('mainApp').style.display = 'none';
+    },
+    "KHÓA VĨNH VIỄN",
+    "HỦY",
+    true
+  );
+}
+
+async function forceLogout() {
+  localStorage.removeItem("infinity_key");
+  currentKey = null;
+  currentKeyData = null;
+  currentKeyId = null;
+  
+  if (expirationCheckInterval) clearInterval(expirationCheckInterval);
+  if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+  
+  document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('mainApp').style.display = 'none';
+}
+
+function showActivateNewKey() {
+  showBeautyModal(
+    "KÍCH HOẠT KEY MỚI", 
+    "Bạn có chắc muốn nhập key mới? Key hiện tại sẽ được đăng xuất nhưng KHÔNG bị khóa. Bạn vẫn có thể dùng lại key cũ sau.", 
+    async () => {
+      playSound('click');
+      
+      // Đăng xuất mềm key cũ
+      if (currentKeyId && currentKeyId !== "premium_bypass_id") {
+        const hwid = getHWID();
+        const activeSessions = currentKeyData?.activeSessions || [];
+        const newSessions = activeSessions.filter(id => id !== hwid);
+        await fetchFirebase(`/keys/${currentKeyId}`, 'PATCH', {
+          activeSessions: newSessions
+        });
+      }
+      
+      localStorage.removeItem("infinity_key");
+      currentKey = null;
+      currentKeyData = null;
+      currentKeyId = null;
+      
+      if (expirationCheckInterval) clearInterval(expirationCheckInterval);
+      if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+      
+      showToast("Vui lòng nhập key mới để kích hoạt", "info");
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('mainApp').style.display = 'none';
+    },
+    "TIẾP TỤC",
+    "HỦY",
+    false
+  );
+}
+
+// ==================== PROFILE UI UPDATE ====================
+
+function updateProfileUI() {
+  const hwid = getHWID();
+  const hwidElem = document.getElementById('hwid-display');
+  if (hwidElem) hwidElem.innerHTML = hwid.slice(0, 8) + "..." + hwid.slice(-4);
+  
+  const keyElem = document.getElementById('current-key-display-pro');
+  if (keyElem && currentKey) keyElem.innerHTML = currentKey.slice(0, 5) + "..." + currentKey.slice(-4);
+  
+  // Cập nhật session count
+  if (currentKeyData) {
+    const activeSessions = currentKeyData.activeSessions || [];
+    const maxSessions = currentKeyData.maxSessions || 1;
+    const sessionsCount = document.getElementById('sessions-count');
+    if (sessionsCount) {
+      sessionsCount.innerHTML = `${activeSessions.length}/${maxSessions}`;
+    }
+  }
+  
+  if (currentKeyData && currentKeyData.expiresAt) {
+    const remaining = getTimeRemaining(currentKeyData.expiresAt);
+    const timeLeftElem = document.getElementById('time-left-display');
+    const expiryElem = document.getElementById('expiry-display-pro');
+    const packageElem = document.getElementById('package-type-display');
+    
+    if (timeLeftElem) timeLeftElem.innerHTML = remaining.expired ? '<span style="color:#ff4444;">ĐÃ HẾT HẠN</span>' : `<span style="color:#00ff9d;">${remaining.text}</span>`;
+    if (expiryElem) expiryElem.innerHTML = new Date(currentKeyData.expiresAt).toLocaleDateString('vi-VN');
+    if (packageElem) packageElem.innerHTML = remaining.expired ? "HẾT HẠN" : `VIP ${remaining.text}`;
+    
+    if (remaining.expired) {
+      forceLogout();
+    }
+  } else if (currentKeyData && !currentKeyData.expiresAt) {
+    const timeLeftElem = document.getElementById('time-left-display');
+    const expiryElem = document.getElementById('expiry-display-pro');
+    const packageElem = document.getElementById('package-type-display');
+    
+    if (timeLeftElem) timeLeftElem.innerHTML = '<span style="color:#00ff9d;">Vĩnh viễn</span>';
+    if (expiryElem) expiryElem.innerHTML = '<span style="color:#00ff9d;">Vĩnh viễn</span>';
+    if (packageElem) packageElem.innerHTML = '<span style="color:#ffaa00;">Vĩnh Viễn</span>';
+  }
+}
+
+// ==================== AUTO LOGIN CHECK ====================
+
+async function checkSavedKeyAndAutoLogin() {
+  const savedKey = localStorage.getItem("infinity_key");
+  if (savedKey) {
+    const result = await verifyAndActivateKey(savedKey, true);
+    if (result.success) {
+      currentKey = savedKey;
+      currentKeyData = result.data;
+      currentKeyId = result.keyId;
+      updateProfileUI();
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'block';
+      showToast(result.message || "Đăng nhập tự động thành công!", "success");
+      startExpirationChecker();
+      startSessionChecker();
+      return true;
+    } else {
+      localStorage.removeItem("infinity_key");
+      currentKey = null;
+      currentKeyData = null;
+      currentKeyId = null;
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('mainApp').style.display = 'none';
+      if (result.message) showToast(result.message, "error");
+      return false;
+    }
+  }
+  return false;
+}
+
+function startExpirationChecker() {
+  if (expirationCheckInterval) clearInterval(expirationCheckInterval);
+  expirationCheckInterval = setInterval(() => {
+    if (currentKeyData && currentKeyData.expiresAt) {
+      const remaining = getTimeRemaining(currentKeyData.expiresAt);
+      if (remaining.expired) {
+        forceLogout();
+        clearInterval(expirationCheckInterval);
+      } else {
+        updateProfileUI();
+      }
+    }
+  }, 60000);
+}
+
+function startSessionChecker() {
+  if (sessionCheckInterval) clearInterval(sessionCheckInterval);
+  sessionCheckInterval = setInterval(() => {
+    if (currentKeyId) {
+      updateSessionInfo();
+    }
+  }, 30000); // Kiểm tra mỗi 30 giây
+}
+
+async function activateKeyFromInput(key) {
+  const result = await verifyAndActivateKey(key);
+  const errorDiv = document.getElementById('loginError');
+  if (result.success) {
+    currentKey = key.toUpperCase();
+    currentKeyData = result.data;
+    currentKeyId = result.keyId;
+    localStorage.setItem("infinity_key", currentKey);
+    updateProfileUI();
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    showToast(result.message || "Kích hoạt thành công!", 'success');
+    if (errorDiv) errorDiv.innerText = '';
+    startExpirationChecker();
+    startSessionChecker();
+    return true;
+  } else {
+    if (errorDiv) errorDiv.innerText = result.message;
+    showToast(result.message, 'error');
+    return false;
+  }
+}
+
+function setupVisibilityCheck() {
+  document.addEventListener('visibilitychange', async () => {
+    if (!document.hidden && currentKey) {
+      const result = await verifyAndActivateKey(currentKey, true);
+      if (result.success) {
+        currentKeyData = result.data;
+        currentKeyId = result.keyId;
+        updateProfileUI();
+      } else {
+        forceLogout();
+      }
+    }
+  });
+}
+
+// ==================== UI INITIALIZATION ====================
+
+function initFunctionsGrid() {
+  const functions = [
+    { id: "aimlock", name: "AIMLOCK", desc: "Khóa Tâm Bám Đầu", icon: "fa-crosshairs" },
+    { id: "sens", name: "SENS BOOSTER", desc: "Nhạy Màn Hình", icon: "fa-bolt" },
+    { id: "fps", name: "FPS BOOSTER", desc: "Buff Hiệu Năng", icon: "fa-tachometer-alt" },
+    { id: "anchor", name: "ANCHOR AIM", desc: "Ghìm Tâm Sâu", icon: "fa-anchor" },
+    { id: "feather", name: "FEATHER AIM", desc: "Trơn Tru Tâm", icon: "fa-feather-alt" },
+    { id: "headshot", name: "HEADSHOT FIX", desc: "Chống Kéo Lố", icon: "fa-bullseye" },
+    { id: "shake", name: "SHAKE FIX", desc: "Giảm Rung Giật", icon: "fa-shield-alt" },
+    { id: "drift", name: "DRIFT FIX", desc: "Chống Lạc Đạn", icon: "fa-magnet" }
+  ];
+  
+  const container = document.getElementById('functions-grid');
+  if (!container) return;
+  
+  container.innerHTML = functions.map(func => `
+    <div class="function-item" data-function="${func.id}">
+      <div class="function-content">
+        <div class="function-icon"><i class="fas ${func.icon}"></i></div>
+        <div class="function-text-wrap">
+          <span class="function-text">${func.name}</span>
+          <span class="desc-text">${func.desc}</span>
+        </div>
+      </div>
+      <div class="toggle-switch">
+        <input type="checkbox" id="${func.id}-toggle" class="toggle-input">
+        <label for="${func.id}-toggle" class="toggle-label"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+  `);
+  
+  functions.forEach(func => {
+    const toggle = document.getElementById(`${func.id}-toggle`);
+    if (toggle) {
+      toggle.addEventListener('change', (e) => {
+        e.stopPropagation();
+        playSound('toggle');
+        const status = toggle.checked ? "BẬT" : "TẮT";
+        showToast(`${func.name} ${status} thành công!`, status === "BẬT" ? "success" : "info");
+        runUniversalModal(`${func.name} ${status}`, status === "BẬT" ? "fa-check-circle" : "fa-power-off");
+        setTimeout(() => {
+          const modal = document.getElementById('universal-modal');
+          if (modal) modal.classList.add('hidden');
+        }, 800);
+      });
+    }
+  });
+}
+
+function initSystemMonitor() {
+  cpuCanvas = document.getElementById('cm-cpu-canvas');
+  ramCanvas = document.getElementById('cm-ram-canvas');
+  if (!cpuCanvas || !ramCanvas) return;
+  
+  cpuCanvas.width = cpuCanvas.clientWidth || 300;
+  ramCanvas.width = ramCanvas.clientWidth || 300;
+  cpuCanvas.height = 80;
+  ramCanvas.height = 80;
+  
+  cpuCtx = cpuCanvas.getContext('2d');
+  ramCtx = ramCanvas.getContext('2d');
+  
+  for (let i = 0; i < 60; i++) { cpuData.push(0); ramData.push(0); }
+  
+  setInterval(() => {
+    const cpuLoad = Math.floor(Math.random() * 30) + 10;
+    const ramLoad = Math.floor(Math.random() * 40) + 50;
+    const cpuText = document.getElementById('cm-cpu-text');
+    const ramText = document.getElementById('cm-ram-text');
+    if (cpuText) cpuText.innerText = cpuLoad + '%';
+    if (ramText) ramText.innerText = ramLoad + '%';
+    cpuData.push(cpuLoad); ramData.push(ramLoad);
+    if (cpuData.length > 60) cpuData.shift();
+    if (ramData.length > 60) ramData.shift();
+    drawChart(cpuCtx, cpuCanvas, cpuData, getComputedStyle(document.body).getPropertyValue('--accent-cyan').trim() || '#ff3333');
+    drawChart(ramCtx, ramCanvas, ramData, getComputedStyle(document.body).getPropertyValue('--accent-purple').trim() || '#ff4444');
+  }, 1500);
+  
+  setInterval(() => {
+    let fps = isFPSLocked ? 60 : Math.floor(Math.random() * 40) + 45;
+    const fpsNow = document.getElementById('cm-fps-now');
+    const modeNow = document.getElementById('cm-mode-now');
+    if (fpsNow) fpsNow.innerText = fps;
+    if (modeNow) modeNow.innerText = isFPSLocked ? 'Locked 60' : 'Unlocked';
+  }, 1000);
+  
+  const consoleDiv = document.getElementById('cm-console');
+  if (consoleDiv) {
+    setInterval(() => {
+      if (consoleDiv.children.length < 20) {
+        const logs = ["[INFO] System active", "[CPU] Core normal", "[RAM] Stable", "[NET] " + (Math.floor(Math.random() * 50) + 20) + "ms"];
+        const newLog = document.createElement('div');
+        newLog.innerText = `[${new Date().toLocaleTimeString()}] ${logs[Math.floor(Math.random() * logs.length)]}`;
+        consoleDiv.appendChild(newLog);
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+      }
+    }, 4000);
+  }
+}
+
+function drawChart(ctx, canvas, data, color) {
+  if (!ctx || !canvas) return;
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  if (data.length < 2) return;
+  const step = w / (data.length - 1);
+  ctx.beginPath();
+  ctx.moveTo(0, h - (data[0] / 100) * h);
+  for (let i = 1; i < data.length; i++) ctx.lineTo(i * step, h - (data[i] / 100) * h);
+  ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+  ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.fillStyle = color + '20'; ctx.fill();
+}
+
+function cleanRAM() { playSound('click'); runUniversalModal("CLEANING RAM", "fa-memory"); setTimeout(() => { showToast("Đã dọn RAM thành công!", "success"); document.getElementById('universal-modal').classList.add('hidden'); }, 1500); }
+function cleanCPU() { playSound('click'); runUniversalModal("OPTIMIZING CPU", "fa-microchip"); setTimeout(() => { showToast("Đã tối ưu CPU thành công!", "success"); document.getElementById('universal-modal').classList.add('hidden'); }, 1500); }
+function toggleFPSLock() { playSound('click'); isFPSLocked = !isFPSLocked; const btn = document.getElementById('cm-btn-fps'); if (btn) { btn.innerHTML = isFPSLocked ? '<i class="fas fa-lock"></i> Lock FPS: ON' : '<i class="fas fa-lock-open"></i> Lock FPS: OFF'; btn.style.borderColor = isFPSLocked ? '#00cc66' : '#ff4444'; btn.style.color = isFPSLocked ? '#00cc66' : '#ff4444'; } showToast(isFPSLocked ? "Đã khóa FPS 60" : "Đã mở khóa FPS", "info"); }
+
+function switchTab(tabId, element) {
+  playSound('click');
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active-tab'));
+  document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active-nav'));
+  const targetTab = document.getElementById(tabId);
+  if (targetTab) targetTab.classList.add('active-tab');
+  if (element) element.classList.add('active-nav');
+}
+
+function isAndroid() {
+  return /Android/i.test(navigator.userAgent || "");
+}
+
+function isIOS() {
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+}
+
+function tryOpenUrl(url) {
+  try {
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = url;
+    document.body.appendChild(iframe);
+    setTimeout(function () {
+      iframe.remove();
+    }, 1200);
+  } catch (e) {}
+  try {
+    window.location.href = url;
+  } catch (e) {}
+}
+
+function launchGameDirect(target) {
+  const isMax = target === "ffmax";
+  const scheme = isMax ? "freefiremax://" : "freefire://";
+  const androidPackage = isMax ? "com.dts.freefiremax" : "com.dts.freefireth";
+
+  if (isAndroid()) {
+    const intentUrl = `intent://${androidPackage}#Intent;scheme=${isMax ? "freefiremax" : "freefire"};package=${androidPackage};end`;
+    tryOpenUrl(intentUrl);
+  } 
+  else if (isIOS()) {
+    tryOpenUrl(scheme);
+  }
+}
+
+window.launchGameWithAnim = function(game) {
+  playSound('click');
+  const seqModal = document.getElementById('launch-sequence-modal');
+  if (!seqModal) return;
+  seqModal.classList.remove('hidden');
+  let c=0, n=0, r=0;
+  const bC=document.getElementById('seq-cpu'), tC=document.getElementById('seq-cpu-txt');
+  const bN=document.getElementById('seq-net'), tN=document.getElementById('seq-net-txt');
+  const bR=document.getElementById('seq-ram'), tR=document.getElementById('seq-ram-txt');
+  const intv = setInterval(() => {
+    c += Math.floor(Math.random() * 8) + 2; if(c>100) c=100;
+    n += Math.floor(Math.random() * 6) + 1; if(n>100) n=100;
+    r += Math.floor(Math.random() * 10) + 3; if(r>100) r=100;
+    if(bC) bC.style.width=c+'%'; if(tC) tC.innerText=c+'%';
+    if(bN) bN.style.width=n+'%'; if(tN) tN.innerText=n+'%';
+    if(bR) bR.style.width=r+'%'; if(tR) tR.innerText=r+'%';
+    if(c===100 && n===100 && r===100) {
+      clearInterval(intv);
+      setTimeout(() => { 
+        if(seqModal) seqModal.classList.add('hidden'); 
+        launchGameDirect(game);
+        showToast(`Đang mở ${game === 'ff' ? 'Free Fire' : 'Free Fire Max'}...`, 'info'); 
+      }, 400);
+    }
+  }, 60);
+};
+
+function runUniversalModal(title, iconClass) {
+  if (isAnimating) return;
+  isAnimating = true;
+  const modal = document.getElementById('universal-modal');
+  const umTitle = document.getElementById('um-title');
+  const umIcon = document.querySelector('#universal-modal .modal-center-icon');
+  const umProg = document.getElementById('um-progress');
+  const umText = document.getElementById('um-text');
+  if (umTitle) umTitle.innerText = title;
+  if (umIcon) umIcon.className = `fas ${iconClass || 'fa-cog'} modal-center-icon`;
+  if (modal) modal.classList.remove('hidden');
+  let pct = 0;
+  if (umProg) umProg.style.width = '0%';
+  if (umText) umText.innerText = '0%';
+  if (modalInterval) clearInterval(modalInterval);
+  modalInterval = setInterval(() => {
+    pct += Math.floor(Math.random() * 8) + 4;
+    if(pct > 100) pct = 100;
+    if (umProg) umProg.style.width = pct + '%';
+    if (umText) umText.innerText = pct + '%';
+    if(pct === 100) {
+      clearInterval(modalInterval);
+      setTimeout(() => { if(modal) modal.classList.add('hidden'); isAnimating = false; }, 300);
+    }
+  }, 40);
+}
+
+function initParticles() {
+  const pCanvas = document.getElementById('particles-canvas');
+  if (!pCanvas) return;
+  const pCtx = pCanvas.getContext('2d');
+  let pWidth = window.innerWidth, pHeight = window.innerHeight;
+  pCanvas.width = pWidth; pCanvas.height = pHeight;
+  let particles = [];
+  for (let i = 0; i < 60; i++) {
+    particles.push({
+      x: Math.random() * pWidth, y: Math.random() * pHeight,
+      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.2,
+      radius: Math.random() * 2 + 1, alpha: Math.random() * 0.4 + 0.1
+    });
+  }
+  function animate() {
+    if (!pCtx) return;
+    pCtx.clearRect(0, 0, pWidth, pHeight);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = pWidth; if (p.x > pWidth) p.x = 0;
+      if (p.y < 0) p.y = pHeight; if (p.y > pHeight) p.y = 0;
+      pCtx.beginPath(); pCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      pCtx.fillStyle = `rgba(255,42,42,${p.alpha})`;
+      pCtx.fill();
+    });
+    requestAnimationFrame(animate);
+  }
+  animate();
+  window.addEventListener('resize', () => { pWidth = window.innerWidth; pHeight = window.innerHeight; pCanvas.width = pWidth; pCanvas.height = pHeight; });
+}
+
+function initCrosshair() {
+  const xhToggle = document.getElementById('crosshair-toggle');
+  const xhOverlay = document.getElementById('virtual-crosshair-overlay');
+  const xhSizeSlider = document.getElementById('xh-size-slider');
+  const xhSizeVal = document.getElementById('xh-size-val');
+  const xhColorPicker = document.getElementById('xh-color-picker');
+  const xhDraw = document.getElementById('xh-draw');
+  const xhXSlider = document.getElementById('xh-x-slider');
+  const xhYSlider = document.getElementById('xh-y-slider');
+  const xhXVal = document.getElementById('xh-x-val');
+  const xhYVal = document.getElementById('xh-y-val');
+  
+  function update() {
+    const size = xhSizeSlider ? parseFloat(xhSizeSlider.value) : 1;
+    const color = xhColorPicker ? xhColorPicker.value : '#ff0000';
+    const posX = xhXSlider ? parseInt(xhXSlider.value) : 0;
+    const posY = xhYSlider ? parseInt(xhYSlider.value) : 0;
+    if(xhSizeVal) xhSizeVal.innerText = size + "x";
+    if(xhXVal) xhXVal.innerText = posX;
+    if(xhYVal) xhYVal.innerText = posY;
+    if(xhDraw && xhOverlay) {
+      xhOverlay.style.transform = `translate(calc(-50% + ${posX}px), calc(-50% + ${posY}px))`;
+      xhDraw.style.transform = `scale(${size})`;
+      xhDraw.style.borderColor = color;
+      const dot = xhDraw.children[0];
+      if(dot) dot.style.backgroundColor = color;
+    }
+  }
+  
+  if(xhToggle) xhToggle.addEventListener('change', () => {
+    if(xhOverlay) xhOverlay.style.display = xhToggle.checked ? 'block' : 'none';
+    if(xhToggle.checked) { playSound('toggle'); runUniversalModal("KÍCH HOẠT TÂM ẢO", "fa-bullseye"); }
+  });
+  if(xhSizeSlider) xhSizeSlider.addEventListener('input', update);
+  if(xhColorPicker) xhColorPicker.addEventListener('input', update);
+  if(xhXSlider) xhXSlider.addEventListener('input', update);
+  if(xhYSlider) xhYSlider.addEventListener('input', update);
+  update();
+}
+
+function initThemePicker() {
+  const savedTheme = localStorage.getItem('app_theme') || 'red';
+  document.body.classList.add(`theme-${savedTheme}`);
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    const theme = btn.dataset.theme;
+    if (theme === savedTheme) btn.classList.add('active-theme');
+    btn.addEventListener('click', () => {
+      const newTheme = btn.dataset.theme;
+      document.body.classList.remove('theme-red', 'theme-cyan', 'theme-purple', 'theme-dark');
+      document.body.classList.add(`theme-${newTheme}`);
+      localStorage.setItem('app_theme', newTheme);
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active-theme'));
+      btn.classList.add('active-theme');
+      showToast(`Đã chuyển sang giao diện ${newTheme.toUpperCase()}`, 'info');
+      playSound('click');
+    });
+  });
+}
+
+// ==================== DOM CONTENT LOADED ====================
+
+document.addEventListener("DOMContentLoaded", async () => {
+  initAudio();
+  initParticles();
+  initFunctionsGrid();
+  initCrosshair();
+  initSystemMonitor();
+  initThemePicker();
+  setupVisibilityCheck();
+  
+  const engineSlider = document.getElementById('engine-slider');
+  const engineDisplay = document.getElementById('engine-val-display');
+  const dpiSlider = document.getElementById('dpi-slider');
+  const dpiDisplay = document.getElementById('dpi-val-display');
+  
+  if(engineSlider && engineDisplay) {
+    engineSlider.addEventListener('input', () => {
+      const val = parseInt(engineSlider.value);
+      engineDisplay.innerText = val === 1 ? "Performance" : val === 2 ? "Balanced" : "Extreme";
+    });
+  }
+  if(dpiSlider && dpiDisplay) {
+    dpiSlider.addEventListener('input', () => dpiDisplay.innerText = dpiSlider.value + ".0x");
+  }
+  
+  document.querySelectorAll('.dev-radio-input').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      if(e.target.checked) runUniversalModal(`OPTIMIZE FOR ${e.target.value.toUpperCase()}`, e.target.value === 'iPhone' ? 'fa-apple' : 'fa-android');
+    });
+  });
+  
+  const startBtn = document.getElementById('btn-start-turbo');
+  if(startBtn) {
+    startBtn.addEventListener('click', () => {
+      playSound('click');
+      runUniversalModal("START AIMLOCK HEAD", "fa-rocket");
+      setTimeout(() => {
+        const aimlockTab = document.querySelector('.nav-item[onclick*="tab-aimlock"]');
+        if (aimlockTab) aimlockTab.click();
+      }, 1000);
+    });
+  }
+  
+  const ramBtn = document.getElementById('cm-btn-ram');
+  const cpuBtn = document.getElementById('cm-btn-cpu');
+  const fpsBtn = document.getElementById('cm-btn-fps');
+  
+  if(ramBtn) ramBtn.addEventListener('click', cleanRAM);
+  if(cpuBtn) cpuBtn.addEventListener('click', cleanCPU);
+  if(fpsBtn) fpsBtn.addEventListener('click', toggleFPSLock);
+  
+  document.addEventListener('mousemove', (e) => {
+    const trail = document.createElement('div');
+    trail.className = 'neon-mouse-trail';
+    trail.style.left = e.pageX + 'px';
+    trail.style.top = e.pageY + 'px';
+    document.body.appendChild(trail);
+    setTimeout(() => trail.remove(), 500);
+  });
+  
+  // === GẮN CÁC NÚT MỚI ===
+  const logoutBtn = document.getElementById('logoutBtn');
+  const revokeKeyBtn = document.getElementById('revokeKeyBtn');
+  const newKeyBtn = document.getElementById('newKeyBtn');
+  
+  if(logoutBtn) logoutBtn.onclick = () => softLogout(true);
+  if(revokeKeyBtn) revokeKeyBtn.onclick = revokeKeyPermanently;
+  if(newKeyBtn) newKeyBtn.onclick = showActivateNewKey;
+  
+  const hasKey = await checkSavedKeyAndAutoLogin();
+  if (!hasKey) {
+    const loginOverlay = document.getElementById('loginOverlay');
+    const mainApp = document.getElementById('mainApp');
+    if(loginOverlay) loginOverlay.style.display = 'flex';
+    if(mainApp) mainApp.style.display = 'none';
+  } else {
+    const loginOverlay = document.getElementById('loginOverlay');
+    const mainApp = document.getElementById('mainApp');
+    if(loginOverlay) loginOverlay.style.display = 'none';
+    if(mainApp) mainApp.style.display = 'block';
+  }
+  
+  const activateBtn = document.getElementById('activateBtn');
+  if(activateBtn) {
+    activateBtn.onclick = () => {
+      const licenseInput = document.getElementById('licenseKey');
+      const key = licenseInput ? licenseInput.value.trim().toUpperCase() : '';
+      if (!key) { 
+        const errorDiv = document.getElementById('loginError');
+        if(errorDiv) errorDiv.innerText = 'Vui lòng nhập key'; 
+        return; 
+      }
+      activateKeyFromInput(key);
+    };
+  }
+  
+  const licenseInput = document.getElementById('licenseKey');
+  if(licenseInput) {
+    licenseInput.addEventListener('keypress', (e) => {
+      if(e.key === 'Enter') {
+        const activate = document.getElementById('activateBtn');
+        if(activate) activate.click();
+      }
+    });
+  }
+  
+  const announceClose = document.getElementById('announce-close');
+  const announceBar = document.getElementById('announce-bar');
+  if(announceClose && announceBar) {
+    announceClose.addEventListener('click', () => {
+      announceBar.classList.add('hidden');
+    });
+  }
+});
+</script>
+</body>
+</html>
